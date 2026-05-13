@@ -4,26 +4,20 @@ USE pharmacy_management_db;
 
 
 
--- =====================================================
--- tạo bảng kho dược phẩm
--- =====================================================
-
+-- tạo bảng
 CREATE TABLE Pharmacy_Inventory (
-    Inventory_ID INT PRIMARY KEY AUTO_INCREMENT,
-    Drug_Name VARCHAR(100),
-    Batch_Number VARCHAR(50),
-    Expiry_Date DATE,
-    Quantity INT
+    inventory_id INT PRIMARY KEY AUTO_INCREMENT,
+    drug_name VARCHAR(100) NOT NULL,
+    batch_number VARCHAR(50) NOT NULL,
+    expiry_date DATE NOT NULL,
+    quantity INT NOT NULL DEFAULT 0
 );
 
 
 
--- =====================================================
 -- dữ liệu mẫu
--- =====================================================
-
 INSERT INTO Pharmacy_Inventory
-(Drug_Name, Batch_Number, Expiry_Date, Quantity)
+(drug_name, batch_number, expiry_date, quantity)
 VALUES
 ('Paracetamol', 'PAR001', '2026-01-15', 500),
 ('Paracetamol', 'PAR002', '2025-11-20', 300),
@@ -33,46 +27,34 @@ VALUES
 
 
 
--- =====================================================
 -- query trước khi tạo index
--- =====================================================
-
 EXPLAIN
 SELECT *
 FROM Pharmacy_Inventory
-WHERE Drug_Name = 'Paracetamol'
-AND Expiry_Date = '2025-11-20';
+WHERE drug_name = 'Paracetamol'
+AND expiry_date = '2025-11-20';
 
 
 
--- =====================================================
--- tạo 2 index đơn lẻ
--- =====================================================
-
+-- tạo index đơn
 CREATE INDEX idx_drug_name
-ON Pharmacy_Inventory(Drug_Name);
+ON Pharmacy_Inventory(drug_name);
 
 CREATE INDEX idx_expiry_date
-ON Pharmacy_Inventory(Expiry_Date);
+ON Pharmacy_Inventory(expiry_date);
 
 
 
--- =====================================================
 -- test query với index đơn
--- =====================================================
-
 EXPLAIN
 SELECT *
 FROM Pharmacy_Inventory
-WHERE Drug_Name = 'Paracetamol'
-AND Expiry_Date = '2025-11-20';
+WHERE drug_name = 'Paracetamol'
+AND expiry_date = '2025-11-20';
 
 
 
--- =====================================================
 -- xóa index đơn
--- =====================================================
-
 DROP INDEX idx_drug_name
 ON Pharmacy_Inventory;
 
@@ -81,46 +63,37 @@ ON Pharmacy_Inventory;
 
 
 
--- =====================================================
 -- tạo composite index
--- =====================================================
-
 CREATE INDEX idx_drug_expiry
-ON Pharmacy_Inventory(Drug_Name, Expiry_Date);
+ON Pharmacy_Inventory(drug_name, expiry_date);
 
 
 
--- =====================================================
--- test query với composite index
--- =====================================================
-
+-- test composite index
 EXPLAIN
 SELECT *
 FROM Pharmacy_Inventory
-WHERE Drug_Name = 'Paracetamol'
-AND Expiry_Date = '2025-11-20';
+WHERE drug_name = 'Paracetamol'
+AND expiry_date = '2025-11-20';
 
 
 
--- =====================================================
--- kiểm tra LIKE
--- =====================================================
-
+-- like không tối ưu
 EXPLAIN
 SELECT *
 FROM Pharmacy_Inventory
-WHERE Drug_Name LIKE '%mol%';
+WHERE drug_name LIKE '%mol%';
 
 
 
--- =====================================================
--- LIKE tối ưu hơn
--- =====================================================
-
+-- like tối ưu hơn
 EXPLAIN
 SELECT *
 FROM Pharmacy_Inventory
-WHERE Drug_Name LIKE 'Para%';
+WHERE drug_name LIKE 'Para%';
 
 
 
+-- kiểm tra index
+SHOW INDEX
+FROM Pharmacy_Inventory;
